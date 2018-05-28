@@ -1,0 +1,17 @@
+Struktury
+- tablica dwuwymiarowa do przechowywania stanu planszy
+
+
+Metody
+- sprawdzająca czy ruch jest dozwolony
+- sprawdzająca czy koniec gry i kto wygrał
+
+
+
+Przebieg
+1. startowy układ
+2. W pętli dla gracza 1 i potem 2, aż do zakończenia gry
+	2.1 pytanie gracza X o ruch (odpowiedź np B2)
+	2.2 sprawdzenie czy można wykonać ruch (jeśli nie to powtórzenie)
+	2.3 wykonanie ruchu (zmiany kolorów pionków itp)
+	2.4 sprawdzenie czy gra się skończyła (i jaki wynik) 
