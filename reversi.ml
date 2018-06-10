@@ -34,11 +34,31 @@ let init_board brd =
     *)
 
 let opponent pl =
-   if pl = 'X' then 'O' else 'X';;
+    if pl = 'X' then 'O' else 'X';;
+
+let pr_pair pair =
+    Printf.printf "(%d, %d)\n" (fst pair) (snd pair);;
+
+let get_neigh_coords coord =
+    let x = fst coord in
+    let y = snd coord in
+    match coord with
+    | (1,1) -> [(x,y+1);(x+1,y);(x+1,y+1)]
+    | (a,1) when a = boardSize -> [(x-1,y);(x-1,y+1);(x,y+1)]
+    | (1,b) when b = boardSize -> [(x,y-1);(x+1,y-1);(x+1,y)]
+    | (a,b) when a = boardSize && b = boardSize -> [(x-1,y);(x-1,y-1);(x,y-1)]
+    | (a,_) when a = boardSize -> [(x-1,y-1);(x,y-1);(x-1,y);(x-1,y+1);(x,y+1)]
+    | (_,b) when b = boardSize -> [(x-1,y-1);(x,y-1);(x+1,y-1);(x-1,y);(x+1,y)]
+    | (_,1) -> [(x-1,y);(x-1,y+1);(x,y+1);(x+1,y);(x+1,y+1)]
+    | (1,_) -> [(x,y-1);(x+1,y-1);(x+1,y);(x,y+1);(x+1,y+1)]
+    | _ -> [(x-1,y-1);(x,y-1);(x+1,y-1);(x-1,y);(x+1,y);(x-1,y+1);(x,y+1);(x+1,y+1)];;
 
 let has_adjacent_opponent x y pl brd =
-    let test_cases = [(x-1,y-1);(x,y-1);(x+1,y-1);(x-1,y);(x+1,y);(x-1,y+1);(x,y+1);(x+1,y+1)] in
-    print_string "iterate through list\n";;
+    let test_cases = get_neigh_coords (x,y) in
+    List.iter pr_pair test_cases;;
+
+let has_player_in_line x y pl brd =
+    print_string "todo as well\n";;
 
 
 let print_board b =
