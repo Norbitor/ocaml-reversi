@@ -80,7 +80,7 @@ let print_board b =
         done;
         printf "\n";
     done;
-    printf "  -----------\n";;
+    printf "\n";;
 
 
 init_board board;;
@@ -101,9 +101,26 @@ let do_move p =
 				    	)
 		done;;
 
-while true do
-    print_board board;
-    do_move 'X';
-    print_board board;
-    do_move 'Y';
-done;
+
+(* sprawdza czy wszystkie pola zostaly zapelnione = koniec gry*)
+let is_finished board = 
+	let finished = ref true in
+		for i=0 to Array.length board-1 do
+  			for j=0 to Array.length board.(i)-1 do
+  				if board.(j).(i) = '_' then
+  					finished := false;
+			done;
+		done;
+		!finished
+;;
+
+
+let start_game = ref false in
+	while not !start_game do
+	    print_board board;
+	    do_move 'X';
+	    print_board board;
+	    do_move 'Y';
+	    if (is_finished board) then
+	    	start_game := true
+	done;;
