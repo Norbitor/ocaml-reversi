@@ -89,9 +89,9 @@ has_adjacent_opponent 1 2 3 4;;
 
 
 let do_move p = 
-	Printf.printf "Player %c move: " p;
 	let quit_loop = ref false in
 		while not !quit_loop do
+			Printf.printf "Player %c move: " p;
 			let move = read_int() in 
 		    	let row = (move / 10) - 1 in 
 				    let col = (move mod 10) - 1 in
