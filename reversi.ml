@@ -62,8 +62,73 @@ let has_player_in_line x y pl brd =
     print_string "todo as well\n";;
 
 
+(* sprawdza czy stawiany pionek ma w linii poziomej ma "kolege" *)
+let has_pawn_horizontal board player row col =
+	let has = ref false in
+		for i = 0 to Array.length board - 1 do
+			if i != (col-1) && i != col && i != (col+1) && board.(row).(i) = player then
+				has := true
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii pionowej ma "kolege" *)
+let has_pawn_vertical board player row col =
+	let has = ref false in
+		for i = 0 to Array.length board - 1 do
+			if i != (row-1) && i != row && i != (row+1) && board.(i).(col) = player then
+				has := true
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej lewa-dol ma "kolege" *)
+let has_pawn_left_down_diagonally board player row col =
+	let has = ref false in
+		for i = row + 2 to Array.length board - 1 do
+			for j = col - 2 downto 0 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej prawo-dol ma "kolege" *)
+let has_pawn_right_down_diagonally board player row col =
+	let has = ref false in
+		for i = row + 2 to Array.length board - 1 do
+			for j = col + 2 to Array.length board - 1 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej prawo-gora ma "kolege" *)
+let has_pawn_right_up_diagonally board player row col =
+	let has = ref false in
+		for i = row - 2 downto 0 do
+			for j = col + 2 to Array.length board - 1 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej lewo-gora ma "kolege" *)
+let has_pawn_left_up_diagonally board player row col =
+	let has = ref false in
+		for i = row - 2 downto 0 do
+			for j = col - 2 downto 0 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+
+
+
 (* sprawdza czy podane wspolrzedne ruchu nie wykraczaja poza plansze *)
-let check_pos x y =
+let check_pos board x y =
   x >= 0 && 
   y >= 0 && 
   y < Array.length board && 
@@ -83,7 +148,7 @@ let print_board b =
     done;
     printf "\n";;
 
-
+(* wykonanie ruchu *)
 let do_move board player = 
 	let quit_loop = ref false in
 		while not !quit_loop do
@@ -91,14 +156,20 @@ let do_move board player =
 			let move = read_int() in 
 		    	let row = (move / 10) - 1 in 
 				    let col = (move mod 10) - 1 in
-				    	if (check_pos row col) then (
+				    	if (board.(row).(col) = '_') && (check_pos board row col) && ( (has_pawn_horizontal board player row col) 
+				    								|| (has_pawn_vertical board player row col)
+				    								|| (has_pawn_left_down_diagonally board player row col)
+				    								|| (has_pawn_right_down_diagonally board player row col)
+				    								|| (has_pawn_right_up_diagonally board player row col)
+				    								|| (has_pawn_left_up_diagonally board player row col) ) then (
 				    		board.(row).(col) <- player;
 				    		quit_loop := true
 				    	)
+				    	else Printf.printf "Bad move!\n";
 		done;;
 
 
-(* sprawdza czy wszystkie pola zostaly zapelnione = koniec gry*)
+(* sprawdza czy wszystkie pola zostaly zapelnione = koniec gry *)
 let is_finished board = 
 	let finished = ref true in
 		for i=0 to Array.length board-1 do
@@ -113,7 +184,7 @@ let is_finished board =
 
 
 (* liczy pionki graczy *)
-let count_white board player = 
+let count_pawns board player = 
 	let res = ref 0 in
 		for i = 0 to (Array.length board) - 1 do
 			for j = 0 to (Array.length board.(i)) - 1 do
@@ -126,9 +197,9 @@ let count_white board player =
 
 (* sprawdza kto wygral *)
 let winner board =
-	Printf.printf "X: %d\nY: %d\n" (count_white board player1) (count_white board player2);
-	let a = count_white board player1 in
-		let b = count_white board player2 in
+	Printf.printf "X: %d\nY: %d\n" (count_pawns board player1) (count_pawns board player2);
+	let a = count_pawns board player1 in
+		let b = count_pawns board player2 in
 			if a > b then
 				Printf.printf "\n%c win this game\n" player1
 			else
@@ -141,12 +212,14 @@ let winner board =
 
 init_board board;;
 
-has_adjacent_opponent 1 2 3 4;;
+(*has_adjacent_opponent 1 2 3 4;;*)
 
 let start_game = ref false in
 	while not !start_game do
 	    print_board board;
 	    do_move board player1;
+	    if (is_finished board) then
+	    	start_game := true;
 	    print_board board;
 	    do_move board player2;
 	    if (is_finished board) then
