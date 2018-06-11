@@ -61,6 +61,15 @@ let has_player_in_line x y pl brd =
     print_string "todo as well\n";;
 
 
+(* sprawdza czy podane wspolrzedne ruchu nie wykraczaja poza plansze *)
+let check_pos x y =
+  x >= 0 && 
+  y >= 0 && 
+  y < Array.length board && 
+  x < Array.length board.(0)
+;;
+
+
 let print_board b =
     printf "   1 2 3 4 5 6 7 8\n";
     printf "  ----------------\n";
@@ -78,11 +87,23 @@ init_board board;;
 
 has_adjacent_opponent 1 2 3 4;;
 
+
+let do_move p = 
+	Printf.printf "Player %c move: " p;
+	let quit_loop = ref false in
+		while not !quit_loop do
+			let move = read_int() in 
+		    	let row = (move / 10) - 1 in 
+				    let col = (move mod 10) - 1 in
+				    	if (check_pos row col) then (
+				    		board.(row).(col) <- p;
+				    		quit_loop := true
+				    	)
+		done;;
+
 while true do
     print_board board;
-    Printf.printf "Player %c move: " !player;
-    let move = read_int() in 
-    let row = (move / 10) - 1 in 
-    let col = (move mod 10) - 1 in 
-        board.(row).(col) <- !player;
+    do_move 'X';
+    print_board board;
+    do_move 'Y';
 done;
