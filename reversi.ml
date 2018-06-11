@@ -12,7 +12,8 @@ Legalny ruch:
  - jeśli gracz nie ma legalnych ruchów, traci kolejkę na rzecz przeciwnika
 *)
 
-let player = ref 'X';;
+let player1 = 'X';;
+let player2 = 'O';;
 let boardSize = 8;;
 let board = Array.make_matrix boardSize boardSize '_';;
 
@@ -83,20 +84,15 @@ let print_board b =
     printf "\n";;
 
 
-init_board board;;
-
-has_adjacent_opponent 1 2 3 4;;
-
-
-let do_move p = 
+let do_move board player = 
 	let quit_loop = ref false in
 		while not !quit_loop do
-			Printf.printf "Player %c move: " p;
+			Printf.printf "Player %c move: " player;
 			let move = read_int() in 
 		    	let row = (move / 10) - 1 in 
 				    let col = (move mod 10) - 1 in
 				    	if (check_pos row col) then (
-				    		board.(row).(col) <- p;
+				    		board.(row).(col) <- player;
 				    		quit_loop := true
 				    	)
 		done;;
@@ -115,12 +111,45 @@ let is_finished board =
 ;;
 
 
+
+(* liczy pionki graczy *)
+let count_white board player = 
+	let res = ref 0 in
+		for i = 0 to (Array.length board) - 1 do
+			for j = 0 to (Array.length board.(i)) - 1 do
+				if board.(i).(j) = player then
+					res := succ !res; (* succ = successor = inkrementacja *)
+			done;
+		done;
+		!res
+;;
+
+(* sprawdza kto wygral *)
+let winner board =
+	Printf.printf "X: %d\nY: %d\n" (count_white board player1) (count_white board player2);
+	let a = count_white board player1 in
+		let b = count_white board player2 in
+			if a > b then
+				Printf.printf "\n%c win this game\n" player1
+			else
+				if a == b then
+					Printf.printf "\nREMIS !!!\n"
+				else
+					Printf.printf "\n%c win this game\n" player2;;
+
+
+
+init_board board;;
+
+has_adjacent_opponent 1 2 3 4;;
+
 let start_game = ref false in
 	while not !start_game do
 	    print_board board;
-	    do_move 'X';
+	    do_move board player1;
 	    print_board board;
-	    do_move 'Y';
+	    do_move board player2;
 	    if (is_finished board) then
 	    	start_game := true
-	done;;
+	done;
+	winner board;;
