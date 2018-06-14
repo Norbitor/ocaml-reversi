@@ -5,11 +5,11 @@ open Scanf
 (*
 Legalny ruch:
  - pionek stawiany jest w linii prostej (pion,poziom) lub ukosnej względem
-   innego pionku gracza
- - pionek musi być postawiony obok pionku przeciwnika
+   innego pionku gracza 													=> zrobione
+ - pionek musi być postawiony obok pionku przeciwnika						=> to trzeba podlaczyc do ifa
  - postawienie pionka powoduje zmiane koloru (u nas X na O lub odwrotnie)
-   pionków w całej wyznaczonej linii
- - jeśli gracz nie ma legalnych ruchów, traci kolejkę na rzecz przeciwnika
+   pionków w całej wyznaczonej linii										=> to trzeba zrobic
+ - jeśli gracz nie ma legalnych ruchów, traci kolejkę na rzecz przeciwnika	=> tego nie ma, ale nie wiem czy robimy
 *)
 
 let player1 = 'X';;
@@ -161,8 +161,10 @@ let do_move board player =
 				    								|| (has_pawn_left_down_diagonally board player row col)
 				    								|| (has_pawn_right_down_diagonally board player row col)
 				    								|| (has_pawn_right_up_diagonally board player row col)
-				    								|| (has_pawn_left_up_diagonally board player row col) ) then (
+				    								|| (has_pawn_left_up_diagonally board player row col) )
+				    								&& true (* tutaj zamiast true bedzie metoda spr. czy ma sasiada przeciwnika *) then (
 				    		board.(row).(col) <- player;
+				    		(* obrocenie pionkow *)
 				    		quit_loop := true
 				    	)
 				    	else Printf.printf "Bad move!\n";
