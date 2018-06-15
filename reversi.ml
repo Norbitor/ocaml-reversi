@@ -5,11 +5,11 @@ open Scanf
 (*
 Legalny ruch:
  - pionek stawiany jest w linii prostej (pion,poziom) lub ukosnej względem
-   innego pionku gracza 													=> zrobione
- - pionek musi być postawiony obok pionku przeciwnika						=> to trzeba podlaczyc do ifa
+   innego pionku gracza
+ - pionek musi być postawiony obok pionku przeciwnika
  - postawienie pionka powoduje zmiane koloru (u nas X na O lub odwrotnie)
-   pionków w całej wyznaczonej linii										=> to trzeba zrobic
- - jeśli gracz nie ma legalnych ruchów, traci kolejkę na rzecz przeciwnika	=> tego nie ma, ale nie wiem czy robimy
+   pionków w całej wyznaczonej linii
+ - jeśli gracz nie ma legalnych ruchów, traci kolejkę na rzecz przeciwnika
 *)
 
 let player1 = 'X';;
@@ -35,6 +35,97 @@ let init_board brd =
     *)
 
 
+let opponent pl =
+    if pl = 'X' then 'O' else 'X';;
+
+let pr_pair pair =
+    Printf.printf "(%d, %d)\n" (fst pair) (snd pair);;
+
+let get_neigh_coords coord =
+    let x = fst coord in
+    let y = snd coord in
+    match coord with
+    | (1,1) -> [(x,y+1);(x+1,y);(x+1,y+1)]
+    | (a,1) when a = boardSize -> [(x-1,y);(x-1,y+1);(x,y+1)]
+    | (1,b) when b = boardSize -> [(x,y-1);(x+1,y-1);(x+1,y)]
+    | (a,b) when a = boardSize && b = boardSize -> [(x-1,y);(x-1,y-1);(x,y-1)]
+    | (a,_) when a = boardSize -> [(x-1,y-1);(x,y-1);(x-1,y);(x-1,y+1);(x,y+1)]
+    | (_,b) when b = boardSize -> [(x-1,y-1);(x,y-1);(x+1,y-1);(x-1,y);(x+1,y)]
+    | (_,1) -> [(x-1,y);(x-1,y+1);(x,y+1);(x+1,y);(x+1,y+1)]
+    | (1,_) -> [(x,y-1);(x+1,y-1);(x+1,y);(x,y+1);(x+1,y+1)]
+    | _ -> [(x-1,y-1);(x,y-1);(x+1,y-1);(x-1,y);(x+1,y);(x-1,y+1);(x,y+1);(x+1,y+1)];;
+
+let has_adjacent_opponent x y pl brd =
+    let test_cases = get_neigh_coords (x,y) in
+    List.iter pr_pair test_cases;;
+
+let has_player_in_line x y pl brd =
+    print_string "todo as well\n";;
+
+
+(* sprawdza czy stawiany pionek ma w linii poziomej ma "kolege" *)
+let has_pawn_horizontal board player row col =
+	let has = ref false in
+		for i = 0 to Array.length board - 1 do
+			if i != (col-1) && i != col && i != (col+1) && board.(row).(i) = player then
+				has := true
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii pionowej ma "kolege" *)
+let has_pawn_vertical board player row col =
+	let has = ref false in
+		for i = 0 to Array.length board - 1 do
+			if i != (row-1) && i != row && i != (row+1) && board.(i).(col) = player then
+				has := true
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej lewa-dol ma "kolege" *)
+let has_pawn_left_down_diagonally board player row col =
+	let has = ref false in
+		for i = row + 2 to Array.length board - 1 do
+			for j = col - 2 downto 0 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej prawo-dol ma "kolege" *)
+let has_pawn_right_down_diagonally board player row col =
+	let has = ref false in
+		for i = row + 2 to Array.length board - 1 do
+			for j = col + 2 to Array.length board - 1 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej prawo-gora ma "kolege" *)
+let has_pawn_right_up_diagonally board player row col =
+	let has = ref false in
+		for i = row - 2 downto 0 do
+			for j = col + 2 to Array.length board - 1 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+(* sprawdza czy stawiany pionek ma w linii ukosnej lewo-gora ma "kolege" *)
+let has_pawn_left_up_diagonally board player row col =
+	let has = ref false in
+		for i = row - 2 downto 0 do
+			for j = col - 2 downto 0 do
+				if board.(i).(j) = player then
+					has := true
+			done;
+		done;
+		!has;;
+
+
 (* sprawdza czy podane wspolrzedne ruchu nie wykraczaja poza plansze *)
 let check_pos board x y =
   x >= 0 && 
@@ -47,18 +138,18 @@ let check_pos board x y =
 (* sprawdza czy ruch w danym kierunku jest mozliwy *)
 let check_direction board opponent (x, y) (dx, dy) =
   let rec check_direction_rec (x, y) valid = 
-  if not (check_pos board x y) then
-  false
-else(
-  match board.(x).(y) with
-  | '_' -> false
-  | cell ->
-  if cell = opponent then 
-  check_direction_rec (x + dx, y + dy) true
-else 
-  valid
-)
-in check_direction_rec (x + dx, y + dy) false
+	  if not (check_pos board x y) then
+	  false
+		else(
+		  match board.(x).(y) with
+		  | '_' -> false
+		  | cell ->
+		  if cell = opponent then 
+		  check_direction_rec (x + dx, y + dy) true
+			else 
+			  valid
+			)
+			in check_direction_rec (x + dx, y + dy) false
 ;;
 
 
@@ -70,16 +161,16 @@ in
 (List.iter 
   (fun (dx, dy) -> 
     if (check_direction board opponent (x, y) (dx, dy)) then
-    let rec take (x, y) =
+    let rec rev (x, y) =
     if (check_pos board x y) then
-    if (board.(x).(y) = opponent) then(
-      board.(x).(y) <- me; 
-      take (x + dx, y + dy)
-    )
-  in take (x + dx, y + dy)
-)
-directions);
-board.(x).(y) <- me
+	    if (board.(x).(y) = opponent) then(
+	      board.(x).(y) <- me; 
+	      rev (x + dx, y + dy)
+	    )
+	  in rev (x + dx, y + dy)
+	)
+	directions);
+	board.(x).(y) <- me
 ;;
 
 
@@ -125,7 +216,13 @@ let do_move board player opponent =
 			let move = read_int() in 
 		    	let row = (move / 10) - 1 in 
 				    let col = (move mod 10) - 1 in
-				    	if (board.(row).(col) = '_') && (check_move board opponent row col) then (
+				    	if (board.(row).(col) = '_') && (check_pos board row col) && ( (has_pawn_horizontal board player row col) 
+				    								|| (has_pawn_vertical board player row col)
+				    								|| (has_pawn_left_down_diagonally board player row col)
+				    								|| (has_pawn_right_down_diagonally board player row col)
+				    								|| (has_pawn_right_up_diagonally board player row col)
+				    								|| (has_pawn_left_up_diagonally board player row col) )
+				    								&& (check_move board opponent row col) then (
 				    		board.(row).(col) <- player;
 				    		reverse_tokens board player opponent row col;
 				    		quit_loop := true
